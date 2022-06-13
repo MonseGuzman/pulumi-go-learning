@@ -1,0 +1,3 @@
+name: basic-azure
+runtime: go
+description: Hello World Pulumi
