@@ -8,11 +8,11 @@ import (
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		resourceGroup := "monserrat-guzman"
+		var resourceGroup pulumi.String = "monserrat-guzman"
 
 		// Create an Azure resource (Storage Account)
-		account, err := storage.NewStorageAccount(ctx, "sapulumi", &storage.StorageAccountArgs{
-			ResourceGroupName: pulumi.String(resourceGroup),
+		account, err := storage.NewStorageAccount(ctx, "sa", &storage.StorageAccountArgs{
+			ResourceGroupName: resourceGroup,
 			Sku: &storage.SkuArgs{
 				Name: pulumi.String("Standard_LRS"),
 			},
@@ -22,10 +22,48 @@ func main() {
 			return err
 		}
 
+		// Create Security Group
+		securityGroup, err := network.NewNetworkSecurityGroup(ctx, "securityGroup", &network.NetworkSecurityGroupArgs{
+			ResourceGroupName:        resourceGroup,
+			Location:                 pulumi.String("centralus"),
+			NetworkSecurityGroupName: pulumi.String("sg-pulumi"),
+			SecurityRules: network.SecurityRuleTypeArray{
+				&network.SecurityRuleTypeArgs{
+					Access:    pulumi.String("Allow"),
+					Direction: pulumi.String("Inbound"),
+					Protocol:  pulumi.String("*"),
+					Priority:  pulumi.Int(100), // It seems these paramets are require
+					Name:      pulumi.String("rule1"),
+
+					Description:              pulumi.String("Allow SSH port"),
+					DestinationPortRange:     pulumi.String("22"),
+					DestinationAddressPrefix: pulumi.String("*"),
+					SourcePortRanges:         pulumi.StringArray{pulumi.String("0-65535")},
+					SourceAddressPrefix:      pulumi.String("*"),
+				},
+				&network.SecurityRuleTypeArgs{
+					Access:    pulumi.String("Allow"),
+					Direction: pulumi.String("Outbound"),
+					Protocol:  pulumi.String("*"),
+					Priority:  pulumi.Int(4096),
+
+					Name:                     pulumi.String("Allow_All_Outbound"),
+					SourcePortRanges:         pulumi.StringArray{pulumi.String("0-65535")},
+					SourceAddressPrefix:      pulumi.String("*"),
+					DestinationPortRanges:    pulumi.StringArray{pulumi.String("0-65535")},
+					DestinationAddressPrefix: pulumi.String("*"),
+				},
+			},
+		})
+		if err != nil {
+			// pulumi.Printf(err.Error())
+			return err
+		}
+
 		// Create a Virtual Network
 		vnet, err := network.NewVirtualNetwork(ctx, "vnet", &network.VirtualNetworkArgs{
-			ResourceGroupName: pulumi.String(resourceGroup),
-
+			ResourceGroupName:  resourceGroup,
+			Location:           pulumi.String("centralus"),
 			VirtualNetworkName: pulumi.String("example-network-pulumi"),
 
 			AddressSpace: &network.AddressSpaceArgs{
@@ -47,6 +85,9 @@ func main() {
 				&network.SubnetTypeArgs{
 					Name:          pulumi.String("subnet2"),
 					AddressPrefix: pulumi.String("10.0.2.0/24"),
+					NetworkSecurityGroup: &network.NetworkSecurityGroupTypeArgs{
+						Id: securityGroup.ID(),
+					},
 				},
 			},
 		})
@@ -54,9 +95,11 @@ func main() {
 			return err
 		}
 
+		// OUTPUTS -
+		ctx.Export("securityGroup", securityGroup.ID())
+
 		ctx.Export("vnetName", vnet.Name)
 
-		// OUTPUTS - the primary key of the Storage Account
 		ctx.Export("primaryStorageKey", pulumi.All(resourceGroup, account.Name).ApplyT(
 			func(args []interface{}) (string, error) {
 				resourceGroupName := args[0].(string)
