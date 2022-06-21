@@ -7,7 +7,7 @@ Concepts
 
 1. Create a new project
 
-``` pulumi new <project_name> ```
+``` pulumi new azure-go -n <project_name> -s <stack_name> -y```
 
 2. Configure azure region (Optional)
 
