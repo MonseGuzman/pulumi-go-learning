@@ -2,6 +2,16 @@ provider "azurerm" {
   features {}
 }
 
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "monserrat-guzman"
+    storage_account_name = "sa06212022"
+    container_name       = "pulumi-terraform-states"
+    key                  = "terraform.tfstate"
+  }
+}
+
+
 data "azurerm_resource_group" "rg" {
   name = "monserrat-guzman"
 }
@@ -12,20 +22,15 @@ resource "random_string" "random" {
   upper   = false
 }
 
-resource "azurerm_storage_account" "example" {
-  name                = "saterraform${random_string.random.result}"
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
+# resource "azurerm_storage_account" "example" {
+#   name                = "saterraform${random_string.random.result}"
+#   resource_group_name = data.azurerm_resource_group.rg.name
+#   location            = data.azurerm_resource_group.rg.location
 
-  account_kind             = "StorageV2"
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-}
-
-output "primaryStorageKey" {
-  value     = azurerm_storage_account.example.primary_access_key
-  sensitive = true
-}
+#   account_kind             = "StorageV2"
+#   account_tier             = "Standard"
+#   account_replication_type = "LRS"
+# }
 
 resource "azurerm_network_security_group" "securitygroup" {
   name                = "sg-terraform"
@@ -79,6 +84,15 @@ resource "azurerm_virtual_network" "vnet" {
   }
 }
 
+# output "primaryStorageKey" {
+#   value     = azurerm_storage_account.example.primary_access_key
+#   sensitive = true
+# }
+
 output "vnetName" {
   value = azurerm_virtual_network.vnet.name
+}
+
+output "securityGroupId" {
+  value = azurerm_network_security_group.securitygroup.id
 }

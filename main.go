@@ -7,20 +7,9 @@ import (
 )
 
 func main() {
-	pulumi.Run(func(ctx *pulumi.Context) error {
-		var resourceGroup pulumi.String = "monserrat-guzman"
+	var resourceGroup pulumi.String = "monserrat-guzman"
 
-		// Create an Azure resource (Storage Account)
-		account, err := storage.NewStorageAccount(ctx, "sa", &storage.StorageAccountArgs{
-			ResourceGroupName: resourceGroup,
-			Sku: &storage.SkuArgs{
-				Name: pulumi.String("Standard_LRS"),
-			},
-			Kind: pulumi.String("StorageV2"),
-		})
-		if err != nil {
-			return err
-		}
+	pulumi.Run(func(ctx *pulumi.Context) error {
 
 		// Create Security Group
 		securityGroup, err := network.NewNetworkSecurityGroup(ctx, "securityGroup", &network.NetworkSecurityGroupArgs{
@@ -56,9 +45,15 @@ func main() {
 			},
 		})
 		if err != nil {
-			// pulumi.Printf(err.Error())
+			// ctx.Log.Error("ERROR: ", err.Error() )
 			return err
 		}
+
+		ctx.Log.Info("This is a log message", &pulumi.LogArgs{
+			Resource:  securityGroup,
+			StreamID:  0,
+			Ephemeral: false,
+		})
 
 		// Create a Virtual Network
 		vnet, err := network.NewVirtualNetwork(ctx, "vnet", &network.VirtualNetworkArgs{
@@ -96,10 +91,29 @@ func main() {
 		}
 
 		// OUTPUTS -
-		ctx.Export("securityGroup", securityGroup.ID())
+		ctx.Export("securityGroupId", securityGroup.ID())
 
 		ctx.Export("vnetName", vnet.Name)
 
+		return nil
+	})
+}
+
+func helloStorageAccount(resourceGroup pulumi.String) {
+	pulumi.Run(func(ctx *pulumi.Context) error {
+		// Create an Azure resource (Storage Account)
+		account, err := storage.NewStorageAccount(ctx, "sa", &storage.StorageAccountArgs{
+			ResourceGroupName: resourceGroup,
+			Sku: &storage.SkuArgs{
+				Name: pulumi.String("Standard_LRS"),
+			},
+			Kind: pulumi.String("StorageV2"),
+		})
+		if err != nil {
+			return err
+		}
+
+		// outputs
 		ctx.Export("primaryStorageKey", pulumi.All(resourceGroup, account.Name).ApplyT(
 			func(args []interface{}) (string, error) {
 				resourceGroupName := args[0].(string)
