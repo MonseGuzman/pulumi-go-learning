@@ -3,13 +3,20 @@ on: [push]
 jobs:
   checks-code:
     runs-on: ubuntu-latest
+    env: 
+      credentials: ${{ secrets.AZURE_CREDS }}
+      AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['clientId'] }}
+      AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDS)['clientSecret'] }}
+      AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['tenantId'] }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
       - name: Azure Login
-        uses: Azure/login@v1.4.5
+        uses: Azure/cli@v1
         with:
-          creds: '${{ secrets.AZURE_CREDS }}'
+          inlineScript: |
+            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+            az account list
       - name: hello world 
         run: | 
           echo "hello"
