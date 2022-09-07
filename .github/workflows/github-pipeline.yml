@@ -6,6 +6,10 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+      - name: Azure Login
+        uses: Azure/login@v1.4.3
+        with:
+          creds: ${{ secrets.AZURE_CREDS }}
       - name: hello world 
         run: | 
           echo "hello"
