@@ -55,10 +55,14 @@ function deleteContainer(){
   az storage container delete --name $CONTAINER_NAME --account-name $STORAGE_NAME --account-key $ACCOUNT_KEY
 }
 
-echo "##[debug]Select the action"
-echo "##[debug]1. Create the storage account and blob container"
-echo "##[debug]2. Delete the storage account and blob container"
-read option
+option=$1
+
+if [ -z $option ]; then
+  echo "##[debug]Select the action"
+  echo "##[debug]1. Create the storage account and blob container"
+  echo "##[debug]2. Delete the storage account and blob container"
+  read option
+fi
 
 case $option in
   1)
