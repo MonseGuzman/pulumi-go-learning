@@ -1,10 +1,10 @@
 name: github-pipeline
 on: [push]
-env: 
-  credentials: ${{ secrets.AZURE_CREDS }}
-  AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['clientId'] }}
-  AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDS)['clientSecret'] }}
-  AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['tenantId'] }}
+# env: 
+#   credentials: ${{ secrets.AZURE_CREDS }}
+#   AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['clientId'] }}
+#   AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDS)['clientSecret'] }}
+#   AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['tenantId'] }}
 jobs:
   checks-code:
     runs-on: ubuntu-latest
@@ -18,11 +18,17 @@ jobs:
         with:
           github-token: ${{ secrets.token }}
 
-      - name: Azure Login
+      - name: Log in with Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      - name: Check Azure
         uses: Azure/cli@v1
         with:
           inlineScript: |
-            az login -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+            az account show
       - name: Download Go packages
         run: |
           go mod tidy
