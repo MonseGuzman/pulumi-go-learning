@@ -18,18 +18,11 @@ jobs:
         with:
           github-token: ${{ secrets.token }}
 
-      # - name: Azure Login
-      #   uses: Azure/cli@v1
-      #   with:
-      #     inlineScript: |
-      #       az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
       - name: Azure Login
-        uses: Azure/login@v1.4.6
+        uses: Azure/cli@v1
         with:
-          creds: ${{ secrets.AZURE_CREDS }}
-          client-id: ${{ secrets.ARM_CLIENT_ID }}
-          tenant-id: ${{ secrets.ARM_TENANT_ID }}
-          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          inlineScript: |
+            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
       - name: Pulumi Config
         uses: pulumi/actions@v3.19.1
         with:
