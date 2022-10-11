@@ -1,13 +1,13 @@
 name: github-pipeline
 on: [push]
+env: 
+  credentials: ${{ secrets.AZURE_CREDS }}
+  AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['clientId'] }}
+  AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDS)['clientSecret'] }}
+  AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['tenantId'] }}
 jobs:
   checks-code:
     runs-on: ubuntu-latest
-    env: 
-      credentials: ${{ secrets.AZURE_CREDS }}
-      AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['clientId'] }}
-      AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDS)['clientSecret'] }}
-      AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['tenantId'] }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -17,8 +17,15 @@ jobs:
           inlineScript: |
             az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
             az account list
+  validate-code:
+    runs-on: ubuntu-latest
+    steps:
       - name: hello world 
         run: | 
           echo "hello"
-          ls
-          pwd
+          az account list
+      - name: Setup Pulumi CLI
+        uses: pulumi/setup-pulumi@v2.0.0
+        with:
+          github-token: ${{ secrets.token }}
+      
