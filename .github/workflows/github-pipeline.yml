@@ -23,6 +23,9 @@ jobs:
         with:
           inlineScript: |
             az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+      - name: Download Go packages
+        run: |
+          go mod tidy
       - name: Pulumi Config
         uses: pulumi/actions@v3.19.1
         with:
