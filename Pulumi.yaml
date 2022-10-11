@@ -1,5 +1,5 @@
 name: basic-azure
 runtime: go
 description: Hello World Pulumi
-backend:
-  url: azblob://pulumi-terraform-states
+# backend:
+  # url: azblob://pulumi-terraform-states
