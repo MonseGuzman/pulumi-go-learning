@@ -22,7 +22,7 @@ jobs:
         uses: Azure/cli@v1
         with:
           inlineScript: |
-            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+            az login -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
       - name: Download Go packages
         run: |
           go mod tidy
