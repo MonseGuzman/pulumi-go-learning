@@ -43,10 +43,12 @@ jobs:
         uses: azure/login@v1
         with:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
-      - name: Set env
-        run: echo 'GITHUB_SHA_SHORT=$(az resource list --tag type="pulumi" | jq -r ".[].name")' >> $GITHUB_ENV
+      - name: Set PULUMI_RESOURCES var
+        run: echo "PULUMI_RESOURCES=$(az resource list --tag type='pulumi' | jq -r '.[].name')" >> $GITHUB_ENV
       - name: Test
-        run: echo $GITHUB_SHA_SHORT
+        run: |
+          echo $PULUMI_RESOURCES
+          echo ${{ env.PULUMI_RESOURCES }}
       # - name: Check my resources
       #   run: |
       #     if [ -z "$(az resource list --tag type='pulumi' | jq -r ".[].name")" ]; then
