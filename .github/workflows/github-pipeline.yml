@@ -47,6 +47,6 @@ jobs:
           if [ -z "$(az resource list --tag type='pulumi' | jq -r ".[].name")" ]; then
               echo "##[debug]No resources with pulumi tag on the resource group"
           else
-              echo "##[error]There are some resources on the resource group. Please consider deleting it"
+              echo "##[debug]There are some resources on the resource group. Please consider deleting it"
           fi
       
