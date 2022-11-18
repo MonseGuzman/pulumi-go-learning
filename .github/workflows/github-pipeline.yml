@@ -44,16 +44,28 @@ jobs:
         with:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
       - name: Set PULUMI_RESOURCES var
-        run: echo "PULUMI_RESOURCES=$(az resource list --tag type='pulumi' | jq -r '.[].name')" >> $GITHUB_ENV
+        run: echo "PULUMI_RESOURCES=$(az resource list --tag type='terraform' | jq -r '.[].name')" >> $GITHUB_ENV
       - name: Test
         run: |
           echo $PULUMI_RESOURCES
           echo ${{ env.PULUMI_RESOURCES }}
-      # - name: Check my resources
-      #   run: |
-      #     if [ -z "$(az resource list --tag type='pulumi' | jq -r ".[].name")" ]; then
-      #         echo "##[debug]No resources with pulumi tag on the resource group"
-      #     else
-      #         echo "##[debug]There are some resources on the resource group. Please consider deleting it"
-      #     fi
+      # - name: Pulumi Destroy
+      #   uses: pulumi/actions@v3.19.1
+      #   if: ${{ env.PULUMI_RESOURCES != '' }} 
+      #   with:
+      #     command: destroy
+      #     stack-name: dev
+      #   env:
+      #     PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
+      #     AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientId'] }}
+      #     AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientSecret'] }}
+      #     AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['tenantId'] }}
+      #     ARM_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientId'] }}
+      #     ARM_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientSecret'] }}
+      #     ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['tenantId'] }}
+      #     ARM_SUBSCRIPTION_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['subscriptionId'] }}
+      - name: Check my resources
+        if: ${{ env.PULUMI_RESOURCES != '' }} 
+        run: |
+            echo "##[debug]I'm not empty :)"
       
