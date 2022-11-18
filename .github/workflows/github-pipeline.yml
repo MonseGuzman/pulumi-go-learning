@@ -11,6 +11,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
       - name: Install Go
         uses: actions/setup-go@v2
       - name: Setup Pulumi CLI
@@ -22,14 +23,11 @@ jobs:
         uses: azure/login@v1
         with:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
-          # client-id: ${{ secrets.ARM_CLIENT_ID }}
-          # tenant-id: ${{ secrets.ARM_TENANT_ID }}
-          # subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      - name: Check Azure
-        uses: Azure/cli@v1
-        with:
-          inlineScript: |
-            az account show
+      # - name: Check Azure
+      #   uses: Azure/cli@v1
+      #   with:
+      #     inlineScript: |
+      #       az account show
       - name: Download Go packages
         run: |
           go mod tidy
@@ -41,4 +39,11 @@ jobs:
           stack-name: dev
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
+          AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['clientId'] }}
+          AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDS)['clientSecret'] }}
+          AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['tenantId'] }}
+          ARM_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['clientId'] }}
+          ARM_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDS)['clientSecret'] }}
+          ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['tenantId'] }}
+          ARM_SUBSCRIPTION_ID: ${{ fromJSON(secrets.AZURE_CREDS)['subscriptionId'] }}
       
