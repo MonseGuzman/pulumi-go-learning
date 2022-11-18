@@ -1,10 +1,8 @@
 name: github-pipeline
 on: [push]
-# env: 
-#   credentials: ${{ secrets.AZURE_CREDS }}
-#   AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['clientId'] }}
-#   AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDS)['clientSecret'] }}
-#   AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDS)['tenantId'] }}
+# on:
+#   pull_request:
+#     - main
 jobs:
   checks-code:
     runs-on: ubuntu-latest
@@ -19,15 +17,6 @@ jobs:
         with:
           github-token: ${{ secrets.token }}
 
-      # - name: Log in with Azure
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: '${{ secrets.AZURE_CREDENTIALS }}'
-      # - name: Check Azure
-      #   uses: Azure/cli@v1
-      #   with:
-      #     inlineScript: |
-      #       az account show
       - name: Download Go packages
         run: |
           go mod tidy
@@ -46,4 +35,18 @@ jobs:
           ARM_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientSecret'] }}
           ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['tenantId'] }}
           ARM_SUBSCRIPTION_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['subscriptionId'] }}
+  checks-resources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in with Azure
+        uses: azure/login@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+      - name: Check my resources
+        run: |
+          if [ -z "$(az resource list --tag type='pulumi' | jq -r ".[].name")" ]; then
+              echo "##[debug]No resources with pulumi tag on the resource group"
+          else
+              echo "##[error]There are some resources on the resource group. Please consider deleting it"
+          fi
       
