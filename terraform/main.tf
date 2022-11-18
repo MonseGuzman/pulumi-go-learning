@@ -2,14 +2,14 @@ provider "azurerm" {
   features {}
 }
 
-terraform {
-  backend "azurerm" {
-    resource_group_name  = "monserrat-guzman"
-    storage_account_name = "sa06212022"
-    container_name       = "pulumi-terraform-states"
-    key                  = "terraform.tfstate"
-  }
-}
+# terraform {
+#   backend "azurerm" {
+#     resource_group_name  = "monserrat-guzman"
+#     storage_account_name = "sa06212022"
+#     container_name       = "pulumi-terraform-states"
+#     key                  = "terraform.tfstate"
+#   }
+# }
 
 
 data "azurerm_resource_group" "rg" {
@@ -62,6 +62,10 @@ resource "azurerm_network_security_group" "securitygroup" {
     destination_address_prefix = "*"
   }
 
+  tags = {
+    "type" = "terraform"
+  }
+
 }
 
 resource "azurerm_virtual_network" "vnet" {
@@ -81,6 +85,10 @@ resource "azurerm_virtual_network" "vnet" {
     name           = "subnet2"
     address_prefix = "10.1.2.0/24"
     security_group = azurerm_network_security_group.securitygroup.id
+  }
+
+  tags = {
+    "type" = "terraform"
   }
 }
 
