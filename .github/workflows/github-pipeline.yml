@@ -47,10 +47,10 @@ jobs:
         run: |
           if [ -z "$(az resource list --tag type='terraform' | jq -r ".[].name")" ]; then
             echo "##[debug]No resources with pulumi tag on the resource group"
-            echo -e "PULUMI_RESOURCES='false'" >> $GITHUB_ENV
+            echo "PULUMI_RESOURCES=false" >> $GITHUB_ENV
           else
             echo "##[debug]There are some resources on the resource group. Please consider deleting it"
-            echo -e "PULUMI_RESOURCES='true'" >> $GITHUB_ENV
+            echo "PULUMI_RESOURCES=true" >> $GITHUB_ENV
           fi
       # - name: Pulumi Destroy
       #   uses: pulumi/actions@v3.19.1
