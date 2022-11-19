@@ -1,7 +1,8 @@
 name: github-pipeline
 on:
   pull_request:
-    - main
+    branches:
+      - main
 jobs:
   checks-code:
     runs-on: ubuntu-latest
