@@ -44,11 +44,14 @@ jobs:
         with:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
       - name: Set PULUMI_RESOURCES var
-        run: echo "PULUMI_RESOURCES=$(az resource list --tag type='terraform' | jq -r '.[].name')" >> $GITHUB_ENV
-      - name: Test
         run: |
-          echo $PULUMI_RESOURCES
-          echo ${{ env.PULUMI_RESOURCES }}
+          if [ -z "$(az resource list --tag type='terraform' | jq -r ".[].name")" ]; then
+            echo "##[debug]No resources with pulumi tag on the resource group"
+            echo -e "PULUMI_RESOURCES='false'" >> $GITHUB_ENV
+          else
+            echo "##[debug]There are some resources on the resource group. Please consider deleting it"
+            echo -e "PULUMI_RESOURCES='true'" >> $GITHUB_ENV
+          fi
       # - name: Pulumi Destroy
       #   uses: pulumi/actions@v3.19.1
       #   if: ${{ env.PULUMI_RESOURCES != '' }} 
@@ -65,7 +68,7 @@ jobs:
       #     ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['tenantId'] }}
       #     ARM_SUBSCRIPTION_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['subscriptionId'] }}
       - name: Check my resources
-        if: ${{ env.PULUMI_RESOURCES != '' }} 
+        if: ${{ env.PULUMI_RESOURCES == 'true' }} 
         run: |
             echo "##[debug]I'm not empty :)"
       
