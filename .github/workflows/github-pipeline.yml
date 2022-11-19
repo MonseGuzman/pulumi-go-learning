@@ -45,30 +45,26 @@ jobs:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
       - name: Set PULUMI_RESOURCES var
         run: |
-          if [ -z "$(az resource list --tag type='terraform' | jq -r ".[].name")" ]; then
+          if [ -z "$(az resource list --tag type='pulumi' | jq -r ".[].name")" ]; then
             echo "##[debug]No resources with pulumi tag on the resource group"
             echo "PULUMI_RESOURCES=false" >> $GITHUB_ENV
           else
             echo "##[debug]There are some resources on the resource group. Please consider deleting it"
             echo "PULUMI_RESOURCES=true" >> $GITHUB_ENV
           fi
-      # - name: Pulumi Destroy
-      #   uses: pulumi/actions@v3.19.1
-      #   if: ${{ env.PULUMI_RESOURCES != '' }} 
-      #   with:
-      #     command: destroy
-      #     stack-name: dev
-      #   env:
-      #     PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
-      #     AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientId'] }}
-      #     AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientSecret'] }}
-      #     AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['tenantId'] }}
-      #     ARM_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientId'] }}
-      #     ARM_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientSecret'] }}
-      #     ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['tenantId'] }}
-      #     ARM_SUBSCRIPTION_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['subscriptionId'] }}
-      - name: Check my resources
+      - name: Pulumi Destroy
+        uses: pulumi/actions@v3.19.1
         if: ${{ env.PULUMI_RESOURCES == 'true' }} 
-        run: |
-            echo "##[debug]I'm not empty :)"
+        with:
+          command: destroy
+          stack-name: dev
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
+          AZURE_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientId'] }}
+          AZURE_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientSecret'] }}
+          AZURE_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['tenantId'] }}
+          ARM_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientId'] }}
+          ARM_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['clientSecret'] }}
+          ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['tenantId'] }}
+          ARM_SUBSCRIPTION_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS)['subscriptionId'] }}
       
