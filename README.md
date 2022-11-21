@@ -1,5 +1,7 @@
 ## Pulumin with Go and Azure
 
+[![Status](https://github.com/MonseGuzman/pulumi-go-learning/actions/workflows/github-pipeline.yml/badge.svg?branch=main)](https://github.com/MonseGuzman/pulumi-go-learning/actions/workflows/github-pipeline.yml)
+
 Concepts
 
 * Pulumi.yaml --> defines current project (runtime to use and determines where to look for the program that should be executed)
@@ -15,7 +17,7 @@ Concepts
 
 3. Review the changes
 
-```pulumi review ```
+```pulumi preview ```
 
 4. Deploy the application
 
@@ -27,7 +29,13 @@ Concepts
 
 **NOTES:**
 
-I'm not sure if you need to do a >az login< but do it
+To log into Azure, you can use az CLI uing `az login` or set the az env vars
 
-Example: https://www.pulumi.com/docs/get-started/azure/begin/
+````
+    export ARM_CLIENT_ID="xxxx-xxxxx-xxxx"
+    export ARM_CLIENT_SECRET="xxxx-xxxxx-xxxx"
+    export ARM_TENANT_ID="xxxx-xxxxx-xxxx"
+    export ARM_SUBSCRIPTION_ID="xxxx-xxxxx-xxxx"
+````
 
+More information: https://www.pulumi.com/docs/get-started/azure/begin/
